@@ -130,27 +130,27 @@ runs:
           clouds:
             openstack:
               auth:
-                auth_url: ${{ inputs.os-auth-url }}
-                username: ${{ inputs.os-username }}
-                password: ${{ inputs.os-password }}
-                project_id: ${{ inputs.os-project-id }}
-                project_name: ${{ inputs.os-project-name }}
-                user_domain_name: ${{ inputs.os-user-domain-name }}
+                auth_url: "${{ inputs.os-auth-url }}"
+                username: "${{ inputs.os-username }}"
+                password: "${{ inputs.os-password }}"
+                project_id: "${{ inputs.os-project-id }}"
+                project_name: "${{ inputs.os-project-name }}"
+                user_domain_name: "${{ inputs.os-user-domain-name }}"
               region_name: "${{ inputs.os-region-name }}"
-              interface: " ${{ inputs.os-interface }}"
-              identity_api_version:  ${{ inputs.os-identity-api-version }}
+              interface: "${{ inputs.os-interface }}"
+              identity_api_version: ${{ inputs.os-identity-api-version }}
         EOF
         else
           cat <<-EOF > ~/.config/openstack/clouds.yaml
           clouds:
             openstack:
               auth:
-                auth_url: ${{ inputs.os-auth-url }}
-                application_credential_id: ${{ inputs.os-application-credential-id }}
-                application_credential_secret: ${{ inputs.os-application-credential-secret }}
+                auth_url: "${{ inputs.os-auth-url }}"
+                application_credential_id: "${{ inputs.os-application-credential-id }}"
+                application_credential_secret: "${{ inputs.os-application-credential-secret }}"
               region_name: "${{ inputs.os-region-name }}"
               interface: " ${{ inputs.os-interface }}"
-              identity_api_version:  ${{ inputs.os-identity-api-version }}
+              identity_api_version: ${{ inputs.os-identity-api-version }}
               auth_type: "v3applicationcredential"
         EOF
         fi
@@ -158,7 +158,7 @@ runs:
       if: runner.os == 'Linux'
       id: fetch_baskio
       env:
-        BASKIO_VERSION: "v0.0.3-beta.2"
+        BASKIO_VERSION: "v0.0.3-beta.3"
       run: |
         wget -q https://github.com/eschercloudai/baskio/releases/download/${BASKIO_VERSION}/baskio-linux-amd64 -O baskio
         chmod +x baskio
@@ -167,6 +167,7 @@ runs:
       if: runner.os == 'Linux'
       id: build
       run: |
+        cat ~/.config/openstack/clouds.yaml
         cat <<-EOF > /tmp/baskio-config.yaml
         clouds-file: "~/.config/openstack/clouds.yaml"
         cloud-name: "openstack"
@@ -186,6 +187,7 @@ runs:
           nvidia-installer-url: "${{ inputs.nvidia-installer-url }}"
           nvidia-driver-version: "${{ inputs.nvidia-driver-version }}"
           grid-license-server: "${{ inputs.grid-license-server }}"
+          verbose: true
         EOF
         ./baskio build --baskio-config /tmp/baskio-config.yaml
         echo "new-image-id=$(cat /tmp/imgid.out)" >> $GITHUB_OUTPUT
@@ -198,13 +200,13 @@ runs:
         clouds-file: "~/.config/openstack/clouds.yaml"
         cloud-name: "openstack"
         scan:
-          image-id: "f54a5c29-6b46-47d2-97d4-3c1148be418e"
-          #image-id: "${{ steps.build.outputs.new-image-id }}"
+          image-id: "${{ steps.build.outputs.new-image-id }}"
           flavor-name: "${{ inputs.flavor-name }}"
           network-id: "${{ inputs.network-id }}"
           attach-config-drive: ${{ inputs.attach-config-drive }}
         EOF
         ./baskio scan --baskio-config /tmp/baskio-config.yaml
+
       shell: bash
     - name: "Publish Image"
       if: runner.os == 'Linux'
@@ -214,8 +216,7 @@ runs:
         clouds-file: "~/.config/openstack/clouds.yaml"
         cloud-name: "openstack"
         publish:
-          #image-id: "${{ steps.build.outputs.new-image-id }}"
-          image-id: "f54a5c29-6b46-47d2-97d4-3c1148be418e"
+          image-id: "${{ steps.build.outputs.new-image-id }}"
           github:
             user: $(cut -d '/' -f 1 <<< "$GITHUB_REPOSITORY")
             project: $(cut -d '/' -f 2 <<< "$GITHUB_REPOSITORY")
