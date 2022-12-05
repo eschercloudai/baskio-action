@@ -167,7 +167,6 @@ runs:
       if: runner.os == 'Linux'
       id: build
       run: |
-        cat ~/.config/openstack/clouds.yaml
         cat <<-EOF > /tmp/baskio-config.yaml
         clouds-file: "~/.config/openstack/clouds.yaml"
         cloud-name: "openstack"
