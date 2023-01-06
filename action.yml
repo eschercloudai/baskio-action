@@ -91,6 +91,10 @@ inputs:
     description: 'The Kubernetes version to deploy into the image. Default: \"1.25.3\".'
     required: false
     default: "1.25.3"
+  extra-debs:
+    description: 'A space-separated list of any additional (Debian / Ubuntu) packages to install.  Default is no extra packages.'
+    required: false
+    default: ""
   enable-nvidia-support:
     description: "Set to enable Nvidia support. You must have valid a license and location to install the .run file from to use this. You'll also need an instance with a GPU added to build the GPU drivers. Default: \"false\"."
     required: false
@@ -161,7 +165,7 @@ runs:
       if: runner.os == 'Linux'
       id: fetch_baskio
       env:
-        BASKIO_VERSION: "v0.0.3-beta.4"
+        BASKIO_VERSION: "v0.0.3-beta.5"
       run: |
         wget -q https://github.com/eschercloudai/baskio/releases/download/${BASKIO_VERSION}/baskio-linux-amd64 -O baskio
         chmod +x baskio
@@ -185,6 +189,7 @@ runs:
           image-visibility: "${{ inputs.image-visibility }}"
           crictl-version: "${{ inputs.crictl-version }}"
           kubernetes-version: "${{ inputs.k8s-version }}"
+          extra-debs: "${{ input.extra-debs }}"
           enable-nvidia-support: ${{ inputs.enable-nvidia-support }}
           nvidia-installer-url: "${{ inputs.nvidia-installer-url }}"
           nvidia-driver-version: "${{ inputs.nvidia-driver-version }}"
