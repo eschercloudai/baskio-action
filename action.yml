@@ -189,7 +189,7 @@ runs:
           image-visibility: "${{ inputs.image-visibility }}"
           crictl-version: "${{ inputs.crictl-version }}"
           kubernetes-version: "${{ inputs.k8s-version }}"
-          extra-debs: "${{ input.extra-debs }}"
+          extra-debs: "${{ inputs.extra-debs }}"
           enable-nvidia-support: ${{ inputs.enable-nvidia-support }}
           nvidia-installer-url: "${{ inputs.nvidia-installer-url }}"
           nvidia-driver-version: "${{ inputs.nvidia-driver-version }}"
